@@ -1,6 +1,6 @@
 1. Motivation
 
-This dataset was created as part of a ten-week Black-Box Optimisation (BBO) capstone project in which I sequentially queried eight unknown benchmark functions of varying dimensionality. The purpose of generating and documenting this dataset was not simply to improve function outputs over time, but to create a transparent and traceable record of how optimisation decisions were made under uncertainty.
+This dataset was created as part of a Black-Box Optimisation (BBO) capstone project in which I sequentially queried eight unknown benchmark functions of varying dimensionality. The purpose of generating and documenting this dataset was not simply to improve function outputs over time, but to create a transparent and traceable record of how optimisation decisions were made under uncertainty.
 Because black-box optimisation problems do not reveal internal structure, all decision-making must be based solely on observed input–output behaviour. For that reason, documenting the full query history is essential. Without this record, it would be impossible to evaluate whether performance improvements resulted from systematic reasoning, random chance, or implicit bias in sampling.
 
 This dataset supports:
