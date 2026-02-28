@@ -3,8 +3,7 @@
 | Field         | Details                                                                                                                                                     |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Name**      | Adaptive Rule-Based Sequential Black-Box Optimiser                                                                                                          |
-| **Type**      | Heuristic sequential optimisation strategy using magnitude-aware perturbation and dimension-sensitive refinement                                            |
-| **Version**   | v10 (Week 10 / Module 21 – Final Iteration)                                                        |
+| **Type**      | Heuristic sequential optimisation strategy using magnitude-aware perturbation and dimension-sensitive refinement                                            |                                                 |
 | **Framework** | Deterministic rule-based search with structured perturbation logic (no external surrogate training framework)                                               
 
 
