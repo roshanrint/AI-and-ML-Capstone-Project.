@@ -1,0 +1,118 @@
+# Week 5: Hierarchical Learning and Iterative Optimization
+
+# -----------------------------------
+# 1. Imports
+# -----------------------------------
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 2. Week 5 Data
+# -----------------------------------
+week5_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    
+    "Inputs": [
+        [0.712384, 0.287619],
+        [0.801437, 0.612983],
+        [0.341276, 0.412358, 0.703419],
+        [0.623174, 0.441286, 0.688947, 0.512438],
+        [0.307184, 0.744193, 0.241687, 0.381246],
+        [0.652184, 0.623419, 0.312864, 0.267931, 0.741286],
+        [0.592431, 0.262548, 0.761843, 0.663219, 0.354968, 0.826741],
+        [0.724918, 0.298643, 0.709861, 0.732418, 0.314587, 0.617943, 0.401862, 0.683247]
+    ],
+
+    "Output": [
+        1.9707901602194292e-72,
+        0.1313836046152583,
+        -0.13492859454363643,
+        -9.062656548063888,
+        11.434169692815287,
+        -1.9478070572803956,
+        0.6258036290357674,
+        7.6350201984936
+    ]
+}
+
+df_week5 = pd.DataFrame(week5_data)
+
+# -----------------------------------
+# 3. Add Metadata
+# -----------------------------------
+df_week5["Dimensions"] = df_week5["Inputs"].apply(len)
+
+# Performance classification
+df_week5["Class"] = df_week5["Output"].apply(
+    lambda x: "Good" if x <= 0 else "Bad"
+)
+
+# -----------------------------------
+# 4. Compare with Week 4 (Progress Tracking)
+# -----------------------------------
+week4_outputs = [
+    6.243672119913107e-34,
+    0.19810744985119755,
+    -0.08951471364682631,
+    -7.2299793984180205,
+    7.182871081788582,
+    -2.034161408708252,
+    0.7245503985335786,
+    7.707326673791901
+]
+
+df_week5["Week4_Output"] = week4_outputs
+df_week5["Output_Change"] = df_week5["Output"] - df_week5["Week4_Output"]
+
+# -----------------------------------
+# 5. Identify Optimization Trends
+# -----------------------------------
+
+# Improvement toward lower values (for minimization perspective)
+df_week5["Improvement"] = df_week5["Output_Change"].apply(
+    lambda x: "Improved" if x < 0 else "Worsened"
+)
+
+# Best and worst performers
+best_functions = df_week5.sort_values(by="Output").head(3)
+worst_functions = df_week5.sort_values(by="Output", ascending=False).head(3)
+
+# -----------------------------------
+# 6. Hierarchical Learning Insight (Clustering Behavior)
+# -----------------------------------
+def cluster_region(output):
+    """Group outputs into hierarchical performance levels"""
+    if output < -1:
+        return "Strong Region"
+    elif output < 0:
+        return "Moderate Region"
+    else:
+        return "Weak Region"
+
+df_week5["Region_Type"] = df_week5["Output"].apply(cluster_region)
+
+# -----------------------------------
+# 7. Input Sensitivity (Gradient-Like)
+# -----------------------------------
+df_week5["Input_Variation"] = df_week5["Inputs"].apply(np.std)
+
+# -----------------------------------
+# 8. Display Results
+# -----------------------------------
+print("Week 5 Results:\n")
+print(df_week5)
+
+print("\nOutput Change from Week 4:\n")
+print(df_week5[["Function", "Week4_Output", "Output", "Output_Change", "Improvement"]])
+
+print("\nBest Performing Functions (Lowest Outputs):")
+print(best_functions[["Function", "Output"]])
+
+print("\nWorst Performing Functions (Highest Outputs):")
+print(worst_functions[["Function", "Output"]])
+
+print("\nHierarchical Region Classification:")
+print(df_week5[["Function", "Output", "Region_Type"]])
