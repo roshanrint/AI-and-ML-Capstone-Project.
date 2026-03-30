@@ -1,4 +1,4 @@
-# Week 3: Model-Guided Exploration and Exploitation
+# Week 4: Local Refinement and Gradient-Informed Search
 
 # -----------------------------------
 # 1. Imports
@@ -7,202 +7,93 @@ import pandas as pd
 import numpy as np
 
 # -----------------------------------
-# 2. Week 3 Data
+# 2. Week 4 Data
 # -----------------------------------
-week3_data = {
+week4_data = {
     "Function": [
         "Function 1", "Function 2", "Function 3", "Function 4",
         "Function 5", "Function 6", "Function 7", "Function 8"
     ],
     
     "Inputs": [
-        [0.631842, 0.368159],
-        [0.781462, 0.621907],
-        [0.247819, 0.312644, 0.803517],
-        [0.564233, 0.517948, 0.583104, 0.541762],
-        [0.218947, 0.832611, 0.173588, 0.319406],
-        [0.612457, 0.667931, 0.287446, 0.213905, 0.712684],
-        [0.618904, 0.176532, 0.824611, 0.689357, 0.292418, 0.887963],
-        [0.837492, 0.227804, 0.741116, 0.889573, 0.176982, 0.673845, 0.318609, 0.789224]
+        [0.631611, 0.368412],
+        [0.773918, 0.635274],
+        [0.259347, 0.301882, 0.794126],
+        [0.557914, 0.525863, 0.575982, 0.547316],
+        [0.287419, 0.764208, 0.221903, 0.361574],
+        [0.598214, 0.681437, 0.273911, 0.225684, 0.701953],
+        [0.571806, 0.241983, 0.781274, 0.642918, 0.334617, 0.846205],
+        [0.702845, 0.318497, 0.689214, 0.751903, 0.294681, 0.598374, 0.421985, 0.704116]
     ],
 
     "Output": [
-        5.28153623217606e-34,
-        0.027561744812253083,
-        -0.08467029003496873,
-        -7.1720364163076304,
-        0.48294601796746756,
-        -2.1067516588612385,
-        0.5989371381276968,
-        6.9827865585924
+        6.243672119913107e-34,
+        0.19810744985119755,
+        -0.08951471364682631,
+        -7.2299793984180205,
+        7.182871081788582,
+        -2.034161408708252,
+        0.7245503985335786,
+        7.707326673791901
     ]
 }
 
-df_week3 = pd.DataFrame(week3_data)
+df_week4 = pd.DataFrame(week4_data)
 
 # -----------------------------------
 # 3. Add Metadata
 # -----------------------------------
-df_week3["Dimensions"] = df_week3["Inputs"].apply(len)
+df_week4["Dimensions"] = df_week4["Inputs"].apply(len)
 
-# Classify performance (SVM-style idea)
-# Threshold: positive = high-performing region
-df_week3["Performance_Class"] = df_week3["Output"].apply(
-    lambda x: "High" if x > 0 else "Low"
+# Classification: good (low/negative) vs bad (high positive)
+df_week4["Class"] = df_week4["Output"].apply(
+    lambda x: "Good" if x <= 0 else "Bad"
 )
 
 # -----------------------------------
-# 4. Combine All Weeks
+# 4. Compare with Week 3 (Local Refinement Effect)
 # -----------------------------------
+week3_outputs = [
+    5.28153623217606e-34,
+    0.027561744812253083,
+    -0.08467029003496873,
+    -7.1720364163076304,
+    0.48294601796746756,
+    -2.1067516588612385,
+    0.5989371381276968,
+    6.9827865585924
+]
 
-# Week 1 + Week 2 (reconstructed minimal)
-df_previous = pd.DataFrame({
-    "Function": [
-        "Function 1","Function 2","Function 3","Function 4",
-        "Function 5","Function 6","Function 7","Function 8"
-    ],
-    "Week1_Output": [
-        2.5420477118637215e-229,-0.05519100453839533,-0.06799875178932432,
-        -18.121247328580683,99.11545139468804,-0.6007122313498615,
-        0.13648917358222687,8.9527536943896
-    ],
-    "Week2_Output": [
-        1.4109092079984164e-177,0.35913914555627,-0.06617809396200307,
-        -15.95397367047563,2.712888943586602,-2.6337842984967827,
-        0.5775875730960504,6.8966021823901
-    ]
-})
-
-# Merge Week 3
-df_all = df_previous.merge(df_week3, on="Function")
+df_week4["Week3_Output"] = week3_outputs
+df_week4["Output_Change"] = df_week4["Output"] - df_week4["Week3_Output"]
 
 # -----------------------------------
-# 5. Analyze Trends
+# 5. Gradient-Like Sensitivity Analysis
 # -----------------------------------
+def input_variation(inputs):
+    """Approximate sensitivity using spread of inputs"""
+    return np.std(inputs)
 
-# Output trend across weeks
-df_all["Trend"] = df_all["Output"] - df_all["Week2_Output"]
-
-print("Week 3 Results:\n")
-print(df_week3)
-
-print("\nPerformance Classification (SVM-inspired):\n")
-print(df_week3[["Function", "Output", "Performance_Class"]])
-
-print("\nTrend from Week 2 to Week 3:\n")
-print(df_all[["Function", "Week2_Output", "Output", "Trend"]])
+df_week4["Input_Variation"] = df_week4["Inputs"].apply(input_variation)
 
 # -----------------------------------
-# 6. Identify Best Performing Functions
+# 6. Identify Local Refinement Success
 # -----------------------------------
-top_functions = df_week3.sort_values(by="Output", ascending=False).head(3)
+improved = df_week4.sort_values(by="Output_Change", ascending=True)
 
-print("\nTop Performing Functions (Week 3):")
-print(top_functions[["Function", "Output"]])
+print("Week 4 Results:\n")
+print(df_week4)
 
-# # Week 3: Model-Guided Exploration and Exploitation
+print("\nOutput Change from Week 3 (Local Refinement Impact):\n")
+print(df_week4[["Function", "Week3_Output", "Output", "Output_Change"]])
 
-# -----------------------------------
-# 1. Imports
-# -----------------------------------
-import pandas as pd
-import numpy as np
+print("\nFunctions Improving Toward Lower Values:")
+print(improved[["Function", "Output_Change"]].head(3))
 
 # -----------------------------------
-# 2. Week 3 Data
+# 7. Identify Most Sensitive Functions
 # -----------------------------------
-week3_data = {
-    "Function": [
-        "Function 1", "Function 2", "Function 3", "Function 4",
-        "Function 5", "Function 6", "Function 7", "Function 8"
-    ],
-    
-    "Inputs": [
-        [0.631842, 0.368159],
-        [0.781462, 0.621907],
-        [0.247819, 0.312644, 0.803517],
-        [0.564233, 0.517948, 0.583104, 0.541762],
-        [0.218947, 0.832611, 0.173588, 0.319406],
-        [0.612457, 0.667931, 0.287446, 0.213905, 0.712684],
-        [0.618904, 0.176532, 0.824611, 0.689357, 0.292418, 0.887963],
-        [0.837492, 0.227804, 0.741116, 0.889573, 0.176982, 0.673845, 0.318609, 0.789224]
-    ],
+sensitive = df_week4.sort_values(by="Input_Variation", ascending=False)
 
-    "Output": [
-        5.28153623217606e-34,
-        0.027561744812253083,
-        -0.08467029003496873,
-        -7.1720364163076304,
-        0.48294601796746756,
-        -2.1067516588612385,
-        0.5989371381276968,
-        6.9827865585924
-    ]
-}
-
-df_week3 = pd.DataFrame(week3_data)
-
-# -----------------------------------
-# 3. Add Metadata
-# -----------------------------------
-df_week3["Dimensions"] = df_week3["Inputs"].apply(len)
-
-# Classify performance (SVM-style idea)
-# Threshold: positive = high-performing region
-df_week3["Performance_Class"] = df_week3["Output"].apply(
-    lambda x: "High" if x > 0 else "Low"
-)
-
-# -----------------------------------
-# 4. Combine All Weeks
-# -----------------------------------
-
-# Week 1 + Week 2 (reconstructed minimal)
-df_previous = pd.DataFrame({
-    "Function": [
-        "Function 1","Function 2","Function 3","Function 4",
-        "Function 5","Function 6","Function 7","Function 8"
-    ],
-    "Week1_Output": [
-        2.5420477118637215e-229,-0.05519100453839533,-0.06799875178932432,
-        -18.121247328580683,99.11545139468804,-0.6007122313498615,
-        0.13648917358222687,8.9527536943896
-    ],
-    "Week2_Output": [
-        1.4109092079984164e-177,0.35913914555627,-0.06617809396200307,
-        -15.95397367047563,2.712888943586602,-2.6337842984967827,
-        0.5775875730960504,6.8966021823901
-    ]
-})
-
-# Merge Week 3
-df_all = df_previous.merge(df_week3, on="Function")
-
-# -----------------------------------
-# 5. Analyze Trends
-# -----------------------------------
-
-# Output trend across weeks
-df_all["Trend"] = df_all["Output"] - df_all["Week2_Output"]
-
-print("Week 3 Results:\n")
-print(df_week3)
-
-print("\nPerformance Classification (SVM-inspired):\n")
-print(df_week3[["Function", "Output", "Performance_Class"]])
-
-print("\nTrend from Week 2 to Week 3:\n")
-print(df_all[["Function", "Week2_Output", "Output", "Trend"]])
-
-# -----------------------------------
-# 6. Identify Best Performing Functions
-# -----------------------------------
-top_functions = df_week3.sort_values(by="Output", ascending=False).head(3)
-
-print("\nTop Performing Functions (Week 3):")
-print(top_functions[["Function", "Output"]])
-
-
-# In Week 3, the query strategy evolved into a model-guided approach that balances exploration and exploitation. Using insights from previous outputs, queries were refined around high-performing regions while still exploring uncertain areas.
-# A simple classification perspective was introduced by separating outputs into high- and low-performing regions, similar to how Support Vector Machines (SVMs) define decision boundaries. This helps guide future sampling toward informative regions of the input space while maintaining robustness against overfitting.
-
+print("\nMost Input-Sensitive Functions:")
+print(sensitive[["Function", "Input_Variation"]])
