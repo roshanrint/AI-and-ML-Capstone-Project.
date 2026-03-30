@@ -1,0 +1,117 @@
+# Week 7: Hyperparameter Tuning and Final Optimization Phase
+
+# -----------------------------------
+# 1. Imports
+# -----------------------------------
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 2. Week 7 Data
+# -----------------------------------
+week7_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    
+    "Inputs": [
+        [0.622384, 0.377619],
+        [0.831437, 0.582983],
+        [0.371276, 0.462358, 0.673419],
+        [0.603174, 0.541286, 0.608947, 0.592438],
+        [0.337184, 0.734193, 0.271687, 0.351246],
+        [0.652184, 0.623419, 0.352864, 0.267931, 0.711286],
+        [0.622431, 0.252548, 0.731843, 0.673219, 0.384968, 0.816741],
+        [0.714918, 0.328643, 0.679861, 0.762418, 0.324587, 0.607943, 0.431862, 0.673247]
+    ],
+
+    "Output": [
+        1.3546935140213703e-31,
+        0.21521869892685275,
+        -0.14298539863513923,
+        -9.002724762719396,
+        14.430218037732988,
+        -1.797177549177155,
+        0.5021620769307047,
+        7.6970242824936
+    ]
+}
+
+df_week7 = pd.DataFrame(week7_data)
+
+# -----------------------------------
+# 3. Metadata & Performance Classification
+# -----------------------------------
+df_week7["Dimensions"] = df_week7["Inputs"].apply(len)
+
+df_week7["Performance"] = df_week7["Output"].apply(
+    lambda x: "Optimal" if x < -5 else
+              "Good" if x < 0 else
+              "Needs Improvement"
+)
+
+# -----------------------------------
+# 4. Compare with Week 6 (Diminishing Returns)
+# -----------------------------------
+week6_outputs = [
+    3.4776113723440283e-28,
+    0.21555430489697752,
+    -0.11011330506238377,
+    -11.379847708814236,
+    17.82835292617503,
+    -1.9269301706058857,
+    0.49704307205839476,
+    7.7197245264936
+]
+
+df_week7["Week6_Output"] = week6_outputs
+df_week7["Output_Change"] = df_week7["Output"] - df_week7["Week6_Output"]
+
+# Detect diminishing returns
+df_week7["Diminishing_Return"] = df_week7["Output_Change"].apply(
+    lambda x: "Yes" if abs(x) < 0.5 else "No"
+)
+
+# -----------------------------------
+# 5. Feature Sensitivity Analysis
+# -----------------------------------
+def feature_sensitivity(inputs):
+    """Estimate which dimensions matter (range-based proxy)"""
+    return np.max(inputs) - np.min(inputs)
+
+df_week7["Sensitivity"] = df_week7["Inputs"].apply(feature_sensitivity)
+
+# -----------------------------------
+# 6. Identify Key Insights
+# -----------------------------------
+
+# Most sensitive functions (important dimensions)
+top_sensitive = df_week7.sort_values(by="Sensitivity", ascending=False).head(3)
+
+# Most improved (true optimization gains)
+best_changes = df_week7.sort_values(by="Output_Change").head(3)
+
+# Most stable (converged)
+most_stable = df_week7.sort_values(by="Output_Change", key=abs).head(3)
+
+# -----------------------------------
+# 7. Display Results
+# -----------------------------------
+print("Week 7 Results:\n")
+print(df_week7)
+
+print("\nChange from Week 6:")
+print(df_week7[["Function", "Week6_Output", "Output", "Output_Change"]])
+
+print("\nDiminishing Returns Detected:")
+print(df_week7[["Function", "Output_Change", "Diminishing_Return"]])
+
+print("\nMost Sensitive Functions (Key Dimensions):")
+print(top_sensitive[["Function", "Sensitivity"]])
+
+print("\nBest Improvements:")
+print(best_changes[["Function", "Output_Change"]])
+
+print("\nMost Stable (Converged) Functions:")
+print(most_stable[["Function", "Output_Change"]])
