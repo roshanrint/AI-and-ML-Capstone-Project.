@@ -1,0 +1,61 @@
+# Week 1: Initial Exploration of Input Space
+
+# -----------------------------------
+# 1. Import Libraries
+# -----------------------------------
+import pandas as pd
+
+# -----------------------------------
+# 2. Define Query Points (Inputs)
+# -----------------------------------
+data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    
+    "Inputs": [
+        [0.125478, 0.912347],
+        [0.299561, 0.045872],
+        [0.478231, 0.812654, 0.593210],
+        [0.035472, 0.643921, 0.819564, 0.412087],
+        [0.892134, 0.257689, 0.478921, 0.621437],
+        [0.314785, 0.129487, 0.567893, 0.831256, 0.245681],
+        [0.076234, 0.845612, 0.493217, 0.132678, 0.761349, 0.285461],
+        [0.243518, 0.762391, 0.105487, 0.481236, 0.927415, 0.316489, 0.678254, 0.149873]
+    ],
+
+    "Output": [
+        2.5420477118637215e-229,
+        -0.05519100453839533,
+        -0.06799875178932432,
+        -18.121247328580683,
+        99.11545139468804,
+        -0.6007122313498615,
+        0.13648917358222687,
+        8.9527536943896
+    ]
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# -----------------------------------
+# 3. Display Results
+# -----------------------------------
+print("Week 1 Query Results:\n")
+print(df)
+
+# -----------------------------------
+# 4. Basic Analysis
+# -----------------------------------
+
+# Add dimensionality column
+df["Dimensions"] = df["Inputs"].apply(len)
+
+print("\nFunction Dimensionality:")
+print(df[["Function", "Dimensions"]])
+
+# Summary statistics of outputs
+print("\nOutput Summary:")
+print(df["Output"].describe())
