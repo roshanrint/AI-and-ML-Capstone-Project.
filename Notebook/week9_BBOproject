@@ -1,0 +1,127 @@
+# Week 9: Scaling Laws, Emergent Behavior, and Risk-Aware Query Strategy
+
+# -----------------------------------
+# 1. Imports
+# -----------------------------------
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 2. Week 9 Data
+# -----------------------------------
+week9_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    
+    "Inputs": [
+        [0.312345, 0.712456],
+        [0.242378, 0.163947],
+        [0.631245, 0.912364, 0.398471],
+        [0.223456, 0.334567, 0.211234, 0.298765],
+        [0.872134, 0.943276, 0.781234, 0.914321],
+        [0.512378, 0.623478, 0.734125, 0.387654, 0.598123],
+        [0.223456, 0.834812, 0.315678, 0.923471, 0.643217, 0.778432],
+        [0.343176, 0.298432, 0.421478, 0.512387, 0.287654, 0.343176, 0.265432, 0.387654]
+    ],
+
+    "Output": [
+        -1.574672878286412e-68,
+        -0.004265492665667989,
+        -0.04721176995905209,
+        -5.5627537349331035,
+        2746.3071967884816,
+        -1.3574239774585901,
+        0.00513373333564341,
+        9.3045814417494
+    ]
+}
+
+df_week9 = pd.DataFrame(week9_data)
+
+# -----------------------------------
+# 3. Metadata
+# -----------------------------------
+df_week9["Dimensions"] = df_week9["Inputs"].apply(len)
+
+# Performance classification
+df_week9["Performance"] = df_week9["Output"].apply(
+    lambda x: "Excellent" if x < -5 else
+              "Good" if x < 0 else
+              "Extreme / Unstable"
+)
+
+# -----------------------------------
+# 4. Compare with Week 8 (Scaling Effects)
+# -----------------------------------
+week8_outputs = [
+    1.1792216134272725e-137,
+    0.06878974048869747,
+    -0.08558166725635234,
+    -12.164205886319582,
+    2374.273511879448,
+    -1.0953825706413336,
+    0.023470185186216786,
+    9.5122289217494
+]
+
+df_week9["Week8_Output"] = week8_outputs
+df_week9["Output_Change"] = df_week9["Output"] - df_week9["Week8_Output"]
+
+# Detect scaling sensitivity
+df_week9["Scaling_Effect"] = df_week9["Output_Change"].apply(
+    lambda x: "High Sensitivity" if abs(x) > 50 else "Stable"
+)
+
+# -----------------------------------
+# 5. Detect Emergent Behavior Candidates
+# -----------------------------------
+def detect_emergence(output):
+    if abs(output) > 1000:
+        return "Emergent / Spike"
+    elif abs(output) < 0.01:
+        return "Near-Zero Stability"
+    else:
+        return "Normal"
+
+df_week9["Behavior"] = df_week9["Output"].apply(detect_emergence)
+
+# -----------------------------------
+# 6. Input Spread (Local Exploration Indicator)
+# -----------------------------------
+def input_spread(inputs):
+    return np.max(inputs) - np.min(inputs)
+
+df_week9["Spread"] = df_week9["Inputs"].apply(input_spread)
+
+# -----------------------------------
+# 7. Identify Key Insights
+# -----------------------------------
+
+# Most extreme outputs (emergent spikes)
+emergent_cases = df_week9.sort_values(by="Output", ascending=False).head(2)
+
+# Most stable (near zero)
+stable_cases = df_week9.iloc[(df_week9["Output"].abs()).argsort()].head(3)
+
+# Most sensitive scaling changes
+sensitive_cases = df_week9.sort_values(by="Output_Change", key=abs, ascending=False).head(3)
+
+# -----------------------------------
+# 8. Display Results
+# -----------------------------------
+print("Week 9 Results:\n")
+print(df_week9)
+
+print("\nOutput Comparison (Week 8 → Week 9):")
+print(df_week9[["Function", "Week8_Output", "Output", "Output_Change", "Scaling_Effect"]])
+
+print("\nEmergent Behavior Cases:")
+print(emergent_cases[["Function", "Output", "Behavior"]])
+
+print("\nStable Near-Zero Functions:")
+print(stable_cases[["Function", "Output", "Behavior"]])
+
+print("\nMost Sensitive Scaling Changes:")
+print(sensitive_cases[["Function", "Output_Change"]])
