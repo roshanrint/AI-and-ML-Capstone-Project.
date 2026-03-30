@@ -1,0 +1,131 @@
+# Week 12: Final Iteration – Convergence, Stability, and Key Driver Analysis
+
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 1. Week 12 Data
+# -----------------------------------
+week12_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+
+    "Inputs": [
+        [0.327418, 0.674925],
+        [0.279643, 0.152381],
+        [0.648772, 0.873291, 0.417856],
+        [0.238914, 0.289472, 0.254903, 0.256441],
+        [0.918642, 0.929318, 0.823917, 0.897206],
+        [0.569238, 0.611492, 0.749615, 0.401847, 0.614973],
+        [0.246819, 0.814336, 0.359274, 0.905617, 0.689458, 0.758941],
+        [0.388917, 0.281604, 0.477392, 0.531845, 0.299417, 0.364958, 0.321574, 0.435912]
+    ],
+
+    "Output": [
+        1.0045996368224851e-51,
+        0.07087114741869453,
+        -0.0399098925285149,
+        -4.597897895194169,
+        3102.1407242932723,
+        -1.3221013369080281,
+        0.0077192241629487944,
+        9.1321041385541
+    ]
+}
+
+df_w12 = pd.DataFrame(week12_data)
+
+# -----------------------------------
+# 2. Convergence Analysis (Week 11 → Week 12)
+# -----------------------------------
+week11_outputs = [
+    7.012916651034509e-61,
+    -0.12262457676194727,
+    -0.03640719253151449,
+    -5.30112122924546,
+    3148.453071795477,
+    -1.2271620363208693,
+    0.005793757336456284,
+    9.2037265044854
+]
+
+df_w12["Week11_Output"] = week11_outputs
+df_w12["Output_Change"] = df_w12["Output"] - df_w12["Week11_Output"]
+
+# Convergence classification
+def convergence_status(change):
+    if abs(change) < 0.1:
+        return "Converged / Stable"
+    elif change > 0:
+        return "Improving"
+    else:
+        return "Declining"
+
+df_w12["Convergence"] = df_w12["Output_Change"].apply(convergence_status)
+
+# -----------------------------------
+# 3. Output Classification (Final Performance)
+# -----------------------------------
+def performance_class(x):
+    if abs(x) < 0.01:
+        return "Near-Zero (Stable)"
+    elif x > 100:
+        return "High Performance Region"
+    elif x < -5:
+        return "Low Performance Region"
+    else:
+        return "Moderate Region"
+
+df_w12["Performance"] = df_w12["Output"].apply(performance_class)
+
+# -----------------------------------
+# 4. Input Sensitivity (Feature Variation Proxy)
+# -----------------------------------
+def input_spread(inputs):
+    return np.max(inputs) - np.min(inputs)
+
+df_w12["Input_Spread"] = df_w12["Inputs"].apply(input_spread)
+
+# Interpretation of spread as refinement vs exploration
+df_w12["Search_Type"] = df_w12["Input_Spread"].apply(
+    lambda x: "Refined (Local Search)" if x < 0.7 else "Broader Search"
+)
+
+# -----------------------------------
+# 5. Identify Key Drivers (PCA-inspired heuristic)
+# -----------------------------------
+# Approximate driver importance via variance of inputs
+def input_variance(inputs):
+    return np.var(inputs)
+
+df_w12["Input_Variance"] = df_w12["Inputs"].apply(input_variance)
+
+# -----------------------------------
+# 6. Final Ranking of Functions by Output
+# -----------------------------------
+df_w12["Rank"] = df_w12["Output"].rank(ascending=False)
+
+# -----------------------------------
+# 7. Stability Check Across Final Iteration
+# -----------------------------------
+df_w12["Stable_Final"] = df_w12["Output_Change"].apply(
+    lambda x: abs(x) < 1.0
+)
+
+# -----------------------------------
+# 8. Display Results
+# -----------------------------------
+print("Week 12 Final Analysis:\n")
+print(df_w12[[
+    "Function", "Output", "Performance",
+    "Convergence", "Search_Type",
+    "Input_Spread", "Input_Variance", "Rank"
+]])
+
+print("\nConvergence Summary (Week 11 → Week 12):")
+print(df_w12[["Function", "Week11_Output", "Output", "Output_Change", "Convergence"]])
+
+print("\nTop Performing Function:")
+print(df_w12.sort_values(by="Output", ascending=False).head(1)[["Function", "Output"]])
