@@ -1,0 +1,124 @@
+# Week 11: Cluster Awareness, Local Refinement, and Iterative Trend Analysis
+
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 1. Week 11 Data
+# -----------------------------------
+week11_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+
+    "Inputs": [
+        [0.311942, 0.691384],
+        [0.264118, 0.165907],
+        [0.631205, 0.891764, 0.401318],
+        [0.221468, 0.306915, 0.238146, 0.271882],
+        [0.904273, 0.943701, 0.807284, 0.913552],
+        [0.552486, 0.628731, 0.733904, 0.417263, 0.598114],
+        [0.229146, 0.832907, 0.343518, 0.921864, 0.673942, 0.776205],
+        [0.372186, 0.297845, 0.460731, 0.514392, 0.316742, 0.347283, 0.304691, 0.418276]
+    ],
+
+    "Output": [
+        7.012916651034509e-61,
+        -0.12262457676194727,
+        -0.03640719253151449,
+        -5.30112122924546,
+        3148.453071795477,
+        -1.2271620363208693,
+        0.005793757336456284,
+        9.2037265044854
+    ]
+}
+
+df_w11 = pd.DataFrame(week11_data)
+
+# -----------------------------------
+# 2. Cluster Indicator (Relative Grouping by Output Magnitude)
+# -----------------------------------
+def cluster_label(x):
+    if abs(x) < 0.01:
+        return "Cluster: Near-Zero Basin"
+    elif x > 100:
+        return "Cluster: High-Value Basin"
+    elif x < -5:
+        return "Cluster: Low-Value Basin"
+    else:
+        return "Cluster: Transitional Region"
+
+df_w11["Cluster"] = df_w11["Output"].apply(cluster_label)
+
+# -----------------------------------
+# 3. Local Refinement Indicator (Input Stability)
+# -----------------------------------
+def input_spread(inputs):
+    return np.max(inputs) - np.min(inputs)
+
+df_w11["Input_Spread"] = df_w11["Inputs"].apply(input_spread)
+
+# Interpret spread as exploration vs refinement
+df_w11["Search_Type"] = df_w11["Input_Spread"].apply(
+    lambda x: "Local Refinement" if x < 0.7 else "Broader Exploration"
+)
+
+# -----------------------------------
+# 4. Compare with Week 10
+# -----------------------------------
+week10_outputs = [
+    7.69480237032979e-68,
+    0.0313867199568637,
+    -0.04190782200217184,
+    -6.060337549957556,
+    3215.473920216576,
+    -1.348654707189094,
+    0.004415539398996966,
+    9.2343210333796
+]
+
+df_w11["Week10_Output"] = week10_outputs
+df_w11["Output_Change"] = df_w11["Output"] - df_w11["Week10_Output"]
+
+# -----------------------------------
+# 5. Detect Stability / Movement
+# -----------------------------------
+df_w11["Stability"] = df_w11["Output_Change"].apply(
+    lambda x: "Stable" if abs(x) < 100 else "Shifted"
+)
+
+# -----------------------------------
+# 6. Identify Promising Clusters
+# -----------------------------------
+high_value = df_w11[df_w11["Output"] > 100]
+near_zero = df_w11[df_w11["Output"].abs() < 0.01]
+negative_region = df_w11[df_w11["Output"] < -5]
+
+# -----------------------------------
+# 7. Trend Observation Summary
+# -----------------------------------
+df_w11["Trend_Type"] = df_w11["Output"].apply(
+    lambda x: "Strong Peak" if x > 1000 else
+              "Moderate" if x > 0 else
+              "Low / Negative"
+)
+
+# -----------------------------------
+# 8. Display Results
+# -----------------------------------
+print("Week 11 Cluster & Refinement Analysis:\n")
+print(df_w11[["Function", "Output", "Cluster", "Search_Type", "Input_Spread", "Stability"]])
+
+print("\nComparison with Week 10:")
+print(df_w11[["Function", "Week10_Output", "Output", "Output_Change", "Stability"]])
+
+print("\nHigh-Value Cluster Candidates:")
+print(high_value[["Function", "Output"]])
+
+print("\nNear-Zero Cluster Candidates:")
+print(near_zero[["Function", "Output"]])
+
+print("\nNegative Region Candidates:")
+print(negative_region[["Function", "Output"]])
