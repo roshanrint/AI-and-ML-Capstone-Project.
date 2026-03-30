@@ -1,0 +1,123 @@
+# Week 13: Final Iteration – Reinforcement Learning Perspective and Reward-Guided Optimization
+
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 1. Week 13 Data
+# -----------------------------------
+week13_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+
+    "Inputs": [
+        [0.712483, 0.183729],
+        [0.412756, 0.287941],
+        [0.732184, 0.645293, 0.528417],
+        [0.601284, 0.742915, 0.693847, 0.588321],
+        [0.927531, 0.918472, 0.835294, 0.904183],
+        [0.384729, 0.792615, 0.521847, 0.663902, 0.458317],
+        [0.318472, 0.702915, 0.441826, 0.812739, 0.593284, 0.674195],
+        [0.421638, 0.305917, 0.498271, 0.556284, 0.318492, 0.387615, 0.349182, 0.462837]
+    ],
+
+    "Output": [
+        -4.514702465460677e-99,
+        -0.002089103938921642,
+        -0.038301280470184405,
+        -15.048126319122492,
+        3220.411881621326,
+        -1.0261008990526646,
+        0.04237657383301327,
+        9.0219033336821
+    ]
+}
+
+df_w13 = pd.DataFrame(week13_data)
+
+# -----------------------------------
+# 2. Reward Signal Interpretation (RL Perspective)
+# -----------------------------------
+def reward_category(x):
+    if x > 100:
+        return "High Reward"
+    elif x > 0:
+        return "Moderate Reward"
+    elif x > -5:
+        return "Low Negative Reward"
+    else:
+        return "Very Negative Reward"
+
+df_w13["Reward_Type"] = df_w13["Output"].apply(reward_category)
+
+# -----------------------------------
+# 3. Policy Decision: Exploration vs Exploitation
+# -----------------------------------
+def policy_decision(x):
+    if x > 100:
+        return "Exploit (Local Refinement)"
+    elif x > 0:
+        return "Exploit with Caution"
+    else:
+        return "Explore (Search New Regions)"
+
+df_w13["Policy"] = df_w13["Output"].apply(policy_decision)
+
+# -----------------------------------
+# 4. Feedback Strength (Magnitude of Signal)
+# -----------------------------------
+df_w13["Reward_Magnitude"] = df_w13["Output"].abs()
+
+# -----------------------------------
+# 5. Stability Check vs Week 12
+# -----------------------------------
+week12_outputs = [
+    1.0045996368224851e-51,
+    0.07087114741869453,
+    -0.0399098925285149,
+    -4.597897895194169,
+    3102.1407242932723,
+    -1.3221013369080281,
+    0.0077192241629487944,
+    9.1321041385541
+]
+
+df_w13["Week12_Output"] = week12_outputs
+df_w13["Output_Change"] = df_w13["Output"] - df_w13["Week12_Output"]
+
+# Convergence / divergence classification
+df_w13["Stability"] = df_w13["Output_Change"].apply(
+    lambda x: "Stable" if abs(x) < 100 else "Shifted"
+)
+
+# -----------------------------------
+# 6. Identify High-Reward Regions (Policy Targets)
+# -----------------------------------
+high_reward = df_w13[df_w13["Output"] > 100]
+low_reward = df_w13[df_w13["Output"] < 0]
+
+# -----------------------------------
+# 7. Simulated Policy Update Indicator
+# -----------------------------------
+# Interpret improvement as reinforcement of policy
+df_w13["Policy_Update_Signal"] = df_w13["Output_Change"].apply(
+    lambda x: "Reinforced" if x > 0 else "Penalized"
+)
+
+# -----------------------------------
+# 8. Display Results
+# -----------------------------------
+print("Week 13 Reinforcement Learning Analysis:\n")
+print(df_w13[[
+    "Function", "Output", "Reward_Type",
+    "Policy", "Reward_Magnitude",
+    "Output_Change", "Stability", "Policy_Update_Signal"
+]])
+
+print("\nHigh Reward Regions (Exploit Targets):")
+print(high_reward[["Function", "Output"]])
+
+print("\nLow Reward Regions (Explore Targets):")
+print(low_reward[["Function", "Output"]])
