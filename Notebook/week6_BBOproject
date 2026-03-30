@@ -1,0 +1,112 @@
+# Week 6: Efficient Optimization with CNN-Inspired Local Refinement
+
+# -----------------------------------
+# 1. Imports
+# -----------------------------------
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 2. Week 6 Data
+# -----------------------------------
+week6_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    
+    "Inputs": [
+        [0.612384, 0.387619],
+        [0.821437, 0.592983],
+        [0.381276, 0.452358, 0.663419],
+        [0.663174, 0.481286, 0.648947, 0.552438],
+        [0.327184, 0.724193, 0.261687, 0.361246],
+        [0.632184, 0.643419, 0.332864, 0.247931, 0.721286],
+        [0.612431, 0.242548, 0.741843, 0.683219, 0.374968, 0.806741],
+        [0.704918, 0.318643, 0.689861, 0.752418, 0.334587, 0.597943, 0.421862, 0.663247]
+    ],
+
+    "Output": [
+        3.4776113723440283e-28,
+        0.21555430489697752,
+        -0.11011330506238377,
+        -11.379847708814236,
+        17.82835292617503,
+        -1.9269301706058857,
+        0.49704307205839476,
+        7.7197245264936
+    ]
+}
+
+df_week6 = pd.DataFrame(week6_data)
+
+# -----------------------------------
+# 3. Metadata and Classification
+# -----------------------------------
+df_week6["Dimensions"] = df_week6["Inputs"].apply(len)
+
+# Define performance categories
+df_week6["Region"] = df_week6["Output"].apply(
+    lambda x: "Optimal" if x < -5 else
+              "Good" if x < 0 else
+              "Poor"
+)
+
+# -----------------------------------
+# 4. Compare with Week 5 (Efficiency Tracking)
+# -----------------------------------
+week5_outputs = [
+    1.9707901602194292e-72,
+    0.1313836046152583,
+    -0.13492859454363643,
+    -9.062656548063888,
+    11.434169692815287,
+    -1.9478070572803956,
+    0.6258036290357674,
+    7.6350201984936
+]
+
+df_week6["Week5_Output"] = week5_outputs
+df_week6["Output_Change"] = df_week6["Output"] - df_week6["Week5_Output"]
+
+# Efficiency metric: improvement per iteration
+df_week6["Efficiency"] = df_week6["Output_Change"].apply(
+    lambda x: -x if x < 0 else 0
+)
+
+# -----------------------------------
+# 5. CNN-Inspired Local Sensitivity
+# -----------------------------------
+def local_variation(inputs):
+    """Simulates local neighborhood sensitivity (like convolutional focus)"""
+    return np.max(inputs) - np.min(inputs)
+
+df_week6["Local_Sensitivity"] = df_week6["Inputs"].apply(local_variation)
+
+# -----------------------------------
+# 6. Identify Key Patterns
+# -----------------------------------
+
+# Most improved functions
+most_improved = df_week6.sort_values(by="Efficiency", ascending=False).head(3)
+
+# Most sensitive regions
+most_sensitive = df_week6.sort_values(by="Local_Sensitivity", ascending=False).head(3)
+
+# -----------------------------------
+# 7. Display Results
+# -----------------------------------
+print("Week 6 Results:\n")
+print(df_week6)
+
+print("\nPerformance Regions:")
+print(df_week6[["Function", "Output", "Region"]])
+
+print("\nImprovement from Week 5:")
+print(df_week6[["Function", "Week5_Output", "Output", "Output_Change"]])
+
+print("\nMost Efficient Improvements:")
+print(most_improved[["Function", "Efficiency"]])
+
+print("\nMost Locally Sensitive Functions:")
+print(most_sensitive[["Function", "Local_Sensitivity"]])
