@@ -1,0 +1,123 @@
+# Week 10: Interpretability, Structured Reasoning, and Controlled Perturbations
+
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 1. Week 10 Data
+# -----------------------------------
+week10_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+
+    "Inputs": [
+        [0.298731, 0.703842],
+        [0.251964, 0.178533],
+        [0.618472, 0.904183, 0.387926],
+        [0.207913, 0.319842, 0.224578, 0.287431],
+        [0.891642, 0.956318, 0.793517, 0.927864],
+        [0.538214, 0.641905, 0.748362, 0.401789, 0.612547],
+        [0.214789, 0.846235, 0.328941, 0.937518, 0.659384, 0.792613],
+        [0.357824, 0.311569, 0.446283, 0.528941, 0.302176, 0.361945, 0.289734, 0.403812]
+    ],
+
+    "Output": [
+        7.69480237032979e-68,
+        0.0313867199568637,
+        -0.04190782200217184,
+        -6.060337549957556,
+        3215.473920216576,
+        -1.348654707189094,
+        0.004415539398996966,
+        9.2343210333796
+    ]
+}
+
+df_w10 = pd.DataFrame(week10_data)
+
+# -----------------------------------
+# 2. Classification by Output Magnitude & Sign
+# -----------------------------------
+def classify_output(x):
+    if abs(x) < 0.01:
+        return "Near-Zero (Stationary Candidate)"
+    elif x > 100:
+        return "Strong Positive (Exploitation Region)"
+    elif x < -5:
+        return "Strong Negative (Underperforming Region)"
+    else:
+        return "Moderate / Transitional"
+
+df_w10["Classification"] = df_w10["Output"].apply(classify_output)
+
+# -----------------------------------
+# 3. Strategy Assignment Based on Classification
+# -----------------------------------
+def assign_strategy(row):
+    if "Near-Zero" in row["Classification"]:
+        return "Local Curvature Probing (small perturbations)"
+    elif "Strong Positive" in row["Classification"]:
+        return "Careful Exploitation (fine-tuning)"
+    elif "Strong Negative" in row["Classification"]:
+        return "Corrective Exploration (moderate shifts)"
+    else:
+        return "Balanced Adjustment"
+
+df_w10["Strategy"] = df_w10.apply(assign_strategy, axis=1)
+
+# -----------------------------------
+# 4. Input Perturbation Analysis
+# -----------------------------------
+def input_spread(inputs):
+    return np.max(inputs) - np.min(inputs)
+
+df_w10["Input_Spread"] = df_w10["Inputs"].apply(input_spread)
+
+# -----------------------------------
+# 5. Compare with Week 9
+# -----------------------------------
+week9_outputs = [
+    -1.574672878286412e-68,
+    -0.004265492665667989,
+    -0.04721176995905209,
+    -5.5627537349331035,
+    2746.3071967884816,
+    -1.3574239774585901,
+    0.00513373333564341,
+    9.3045814417494
+]
+
+df_w10["Week9_Output"] = week9_outputs
+df_w10["Output_Change"] = df_w10["Output"] - df_w10["Week9_Output"]
+
+# Sensitivity check
+df_w10["Sensitivity"] = df_w10["Output_Change"].apply(
+    lambda x: "High Change" if abs(x) > 100 else "Low Change"
+)
+
+# -----------------------------------
+# 6. Identify Key Categories
+# -----------------------------------
+near_zero_funcs = df_w10[df_w10["Classification"].str.contains("Near-Zero")]
+strong_positive_funcs = df_w10[df_w10["Classification"].str.contains("Strong Positive")]
+strong_negative_funcs = df_w10[df_w10["Classification"].str.contains("Strong Negative")]
+
+# -----------------------------------
+# 7. Display Results
+# -----------------------------------
+print("Week 10 Classification Results:\n")
+print(df_w10[["Function", "Output", "Classification", "Strategy", "Input_Spread"]])
+
+print("\nComparison with Week 9:")
+print(df_w10[["Function", "Week9_Output", "Output", "Output_Change", "Sensitivity"]])
+
+print("\nNear-Zero Functions:")
+print(near_zero_funcs[["Function", "Output"]])
+
+print("\nStrong Positive Functions:")
+print(strong_positive_funcs[["Function", "Output"]])
+
+print("\nStrong Negative Functions:")
+print(strong_negative_funcs[["Function", "Output"]])
