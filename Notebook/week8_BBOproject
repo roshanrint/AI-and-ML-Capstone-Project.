@@ -1,0 +1,108 @@
+# Week 8: Prompt Engineering, Decoding Control, and Exploration Strategy
+
+# -----------------------------------
+# 1. Imports
+# -----------------------------------
+import pandas as pd
+import numpy as np
+
+# -----------------------------------
+# 2. Week 8 Data
+# -----------------------------------
+week8_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    
+    "Inputs": [
+        [0.212345, 0.812456],
+        [0.142378, 0.263947],
+        [0.731245, 0.812364, 0.298471],
+        [0.123456, 0.234567, 0.111234, 0.198765],
+        [0.872134, 0.943276, 0.781234, 0.864321],
+        [0.412378, 0.523478, 0.634125, 0.287654, 0.498123],
+        [0.123456, 0.734812, 0.215678, 0.823471, 0.543217, 0.678432],
+        [0.243176, 0.198432, 0.321478, 0.412387, 0.187654, 0.243176, 0.165432, 0.287654]
+    ],
+
+    "Output": [
+        1.1792216134272725e-137,
+        0.06878974048869747,
+        -0.08558166725635234,
+        -12.164205886319582,
+        2374.273511879448,
+        -1.0953825706413336,
+        0.023470185186216786,
+        9.5122289217494
+    ]
+}
+
+df_week8 = pd.DataFrame(week8_data)
+
+# -----------------------------------
+# 3. Metadata
+# -----------------------------------
+df_week8["Dimensions"] = df_week8["Inputs"].apply(len)
+
+# Classify performance
+df_week8["Performance"] = df_week8["Output"].apply(
+    lambda x: "Excellent" if x < -5 else
+              "Good" if x < 0 else
+              "Poor"
+)
+
+# -----------------------------------
+# 4. Sensitivity / Input Variability
+# -----------------------------------
+def input_spread(inputs):
+    return np.max(inputs) - np.min(inputs)
+
+df_week8["Spread"] = df_week8["Inputs"].apply(input_spread)
+
+# -----------------------------------
+# 5. Identify Exploration vs Exploitation Signals
+# -----------------------------------
+
+# Functions with very high outputs (possible outliers / exploration failures)
+high_output = df_week8.sort_values(by="Output", ascending=False).head(2)
+
+# Functions close to zero (stable / exploited regions)
+stable_regions = df_week8[df_week8["Output"].abs() < 0.1]
+
+# -----------------------------------
+# 6. Compare with Week 7
+# -----------------------------------
+week7_outputs = [
+    1.3546935140213703e-31,
+    0.21521869892685275,
+    -0.14298539863513923,
+    -9.002724762719396,
+    14.430218037732988,
+    -1.797177549177155,
+    0.5021620769307047,
+    7.6970242824936
+]
+
+df_week8["Week7_Output"] = week7_outputs
+df_week8["Output_Change"] = df_week8["Output"] - df_week8["Week7_Output"]
+
+# Detect instability / large jumps
+df_week8["Stability"] = df_week8["Output_Change"].apply(
+    lambda x: "Stable" if abs(x) < 1 else "Unstable"
+)
+
+# -----------------------------------
+# 7. Display Results
+# -----------------------------------
+print("Week 8 Results:\n")
+print(df_week8)
+
+print("\nOutput Comparison (Week 7 → Week 8):")
+print(df_week8[["Function", "Week7_Output", "Output", "Output_Change", "Stability"]])
+
+print("\nHigh Output (Exploration Risk / Outliers):")
+print(high_output[["Function", "Output"]])
+
+print("\nStable Near-Optimal Regions:")
+print(stable_regions[["Function", "Output"]])
