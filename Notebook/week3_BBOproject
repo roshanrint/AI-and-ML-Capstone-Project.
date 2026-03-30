@@ -1,0 +1,202 @@
+# Week 2: Structured Exploration Based on Initial Outputs
+
+# -----------------------------------
+# 1. Import Libraries
+# -----------------------------------
+import pandas as pd
+
+# -----------------------------------
+# 2. Week 1 Data (for reference)
+# -----------------------------------
+week1_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    "Output": [
+        2.5420477118637215e-229,
+        -0.05519100453839533,
+        -0.06799875178932432,
+        -18.121247328580683,
+        99.11545139468804,
+        -0.6007122313498615,
+        0.13648917358222687,
+        8.9527536943896
+    ]
+}
+
+df_week1 = pd.DataFrame(week1_data)
+
+# -----------------------------------
+# 3. Week 2 Query Points (Inputs)
+# -----------------------------------
+week2_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    
+    "Inputs": [
+        [0.847231, 0.153924],
+        [0.749128, 0.650473],
+        [0.149273, 0.200891, 0.849672],
+        [0.799451, 0.249312, 0.299805, 0.749999],
+        [0.200123, 0.849876, 0.150234, 0.300567],
+        [0.700012, 0.749999, 0.200345, 0.100111, 0.900678],
+        [0.600321, 0.150987, 0.850444, 0.700222, 0.250111, 0.900555],
+        [0.850111, 0.200222, 0.750333, 0.900444, 0.150555, 0.650666, 0.300777, 0.800888]
+    ],
+
+    "Output": [
+        1.4109092079984164e-177,
+        0.35913914555627,
+        -0.06617809396200307,
+        -15.95397367047563,
+        2.712888943586602,
+        -2.6337842984967827,
+        0.5775875730960504,
+        6.8966021823901
+    ]
+}
+
+df_week2 = pd.DataFrame(week2_data)
+
+# -----------------------------------
+# 4. Add Dimensionality Info
+# -----------------------------------
+df_week2["Dimensions"] = df_week2["Inputs"].apply(len)
+
+# -----------------------------------
+# 5. Compare Week 1 vs Week 2 Outputs
+# -----------------------------------
+comparison_df = df_week1.merge(df_week2, on="Function", suffixes=("_Week1", "_Week2"))
+
+# Calculate change in outputs
+comparison_df["Output_Change"] = comparison_df["Output_Week2"] - comparison_df["Output_Week1"]
+
+# -----------------------------------
+# 6. Display Results
+# -----------------------------------
+print("Week 2 Query Results:\n")
+print(df_week2)
+
+print("\nComparison with Week 1:\n")
+print(comparison_df[["Function", "Output_Week1", "Output_Week2", "Output_Change"]])
+
+# -----------------------------------
+# 7. Basic Analysis
+# -----------------------------------
+
+# Identify largest change
+max_change_func = comparison_df.iloc[comparison_df["Output_Change"].abs().idxmax()]
+
+print("\nFunction with Largest Change:")
+print(max_change_func[["Function", "Output_Change"]])
+
+# Summary statistics
+print("\nWeek 2 Output Summary:")
+print(df_week2["Output"].describe())
+
+
+
+## Week 2: Structured Exploration Based on Initial Outputs
+
+# -----------------------------------
+# 1. Import Libraries
+# -----------------------------------
+import pandas as pd
+
+# -----------------------------------
+# 2. Week 1 Data (for reference)
+# -----------------------------------
+week1_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    "Output": [
+        2.5420477118637215e-229,
+        -0.05519100453839533,
+        -0.06799875178932432,
+        -18.121247328580683,
+        99.11545139468804,
+        -0.6007122313498615,
+        0.13648917358222687,
+        8.9527536943896
+    ]
+}
+
+df_week1 = pd.DataFrame(week1_data)
+
+# -----------------------------------
+# 3. Week 2 Query Points (Inputs)
+# -----------------------------------
+week2_data = {
+    "Function": [
+        "Function 1", "Function 2", "Function 3", "Function 4",
+        "Function 5", "Function 6", "Function 7", "Function 8"
+    ],
+    
+    "Inputs": [
+        [0.847231, 0.153924],
+        [0.749128, 0.650473],
+        [0.149273, 0.200891, 0.849672],
+        [0.799451, 0.249312, 0.299805, 0.749999],
+        [0.200123, 0.849876, 0.150234, 0.300567],
+        [0.700012, 0.749999, 0.200345, 0.100111, 0.900678],
+        [0.600321, 0.150987, 0.850444, 0.700222, 0.250111, 0.900555],
+        [0.850111, 0.200222, 0.750333, 0.900444, 0.150555, 0.650666, 0.300777, 0.800888]
+    ],
+
+    "Output": [
+        1.4109092079984164e-177,
+        0.35913914555627,
+        -0.06617809396200307,
+        -15.95397367047563,
+        2.712888943586602,
+        -2.6337842984967827,
+        0.5775875730960504,
+        6.8966021823901
+    ]
+}
+
+df_week2 = pd.DataFrame(week2_data)
+
+# -----------------------------------
+# 4. Add Dimensionality Info
+# -----------------------------------
+df_week2["Dimensions"] = df_week2["Inputs"].apply(len)
+
+# -----------------------------------
+# 5. Compare Week 1 vs Week 2 Outputs
+# -----------------------------------
+comparison_df = df_week1.merge(df_week2, on="Function", suffixes=("_Week1", "_Week2"))
+
+# Calculate change in outputs
+comparison_df["Output_Change"] = comparison_df["Output_Week2"] - comparison_df["Output_Week1"]
+
+# -----------------------------------
+# 6. Display Results
+# -----------------------------------
+print("Week 2 Query Results:\n")
+print(df_week2)
+
+print("\nComparison with Week 1:\n")
+print(comparison_df[["Function", "Output_Week1", "Output_Week2", "Output_Change"]])
+
+# -----------------------------------
+# 7. Basic Analysis
+# -----------------------------------
+
+# Identify largest change
+max_change_func = comparison_df.iloc[comparison_df["Output_Change"].abs().idxmax()]
+
+print("\nFunction with Largest Change:")
+print(max_change_func[["Function", "Output_Change"]])
+
+# Summary statistics
+print("\nWeek 2 Output Summary:")
+print(df_week2["Output"].describe())
+
+# In Week 2, the strategy shifted from purely random exploration to a more structured approach informed by initial outputs. Extreme values observed in Week 1 suggested strong nonlinearities and varying output scales across functions.
+Rather than exploiting these early signals, the focus remained on exploration due to the limited sample size. However, input selections were more intentional—testing different regions of the space and varying feature magnitudes to better understand sensitivity and potential curvature in the response surface.
