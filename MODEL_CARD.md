@@ -60,6 +60,9 @@ By documenting both dataset structure and decision logic, this project promotes 
 Transparency also allows others to critique, replicate, or improve the strategy. In real-world applications, such openness supports trust and iterative refinement.
 
 
+# Reflection
+
+This project explores black-box function optimisation across thirteen iterative rounds. Each week involved selecting input queries, observing outputs, and refining strategies based on accumulated data. Early iterations emphasised exploration of the input space, while later stages shifted toward exploitation, clustering, and local refinement around high-performing regions. Techniques inspired by scaling laws, principal component analysis, and reinforcement learning guided decision-making. The final approach balances exploration and exploitation, using feedback signals to improve subsequent queries. The analysis highlights emergent behaviour, convergence patterns, and sensitivity to input variations. Overall, the project demonstrates an adaptive, data-driven optimisation process applied to unknown functions effectively implemented.
 
 
 # Conclusion
